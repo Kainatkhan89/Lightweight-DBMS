@@ -6,7 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import com.dbms.org.Utils;
-
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class AuthFile implements FileIO {
 
@@ -79,12 +80,13 @@ public class AuthFile implements FileIO {
     @Override
     public boolean fileWriter(String path, String[] userInfo) {
         try {
-            PrintWriter printWriter = new PrintWriter(path);
+            FileWriter fileWriter = new FileWriter(path, true); // Pass 'true' to enable appending
+            PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println(String.join(",", userInfo));
             printWriter.close();
             return true;
-        } catch (FileNotFoundException e) {
-            Utils.error("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Utils.error("An error occurred while appending to the file: " + e.getMessage());
         }
         return false;
     }

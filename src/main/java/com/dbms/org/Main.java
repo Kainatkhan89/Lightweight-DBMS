@@ -33,8 +33,8 @@ public class Main
                     Utils.print("Login selected.");
                     current_user = Authentication.login();
                 } else if (userInput == 2) {
-                    Utils.print("Signup selected.");
-                    Utils.print(CreateUser.signup()? "Signup successful":"Something went wrong");
+                    Utils.print("\nLet's sign you up!\n");
+                    Utils.print(CreateUser.signup()? "\nSignup successful !!!\nNow, login with your new user.\n":"\nSomething went wrong. Please try again.\n");
                     System.exit(0);
                 } else {
                     Utils.print("Invalid input. Please enter 1 for login or 2 for signup.");

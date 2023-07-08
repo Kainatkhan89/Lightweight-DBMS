@@ -48,7 +48,7 @@ public class CreateUser {
             return false;
         }
 
-        Utils._print("\nEnter new password: ");
+        Utils._print("Enter new password: ");
         String password = input.nextLine();
 
         Utils._print("Enter question: ");
