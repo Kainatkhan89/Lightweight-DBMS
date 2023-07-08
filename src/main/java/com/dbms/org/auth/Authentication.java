@@ -25,8 +25,8 @@ public class Authentication {
         if(userInfo!=null){
             userID=userInfo[0];
             User user = new User(Integer.parseInt(userInfo[0]), userInfo[1]);
-            String[] securityQA = fileReader(Constant.AUTH_FILE_PATH, userID);
-            System.out.print(securityQA[1]);
+            String[] securityQA = fileReader(Constant.AUTH_QA_FILE_PATH, userID);
+            System.out.println(securityQA[1]);
             String securityAnswer = input.nextLine();
             if(securityAnswer.toLowerCase().equals(securityQA[2].toLowerCase())){
                 return user;
@@ -49,7 +49,7 @@ public class Authentication {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] res = line.split(",");
-                if (res[0] == req[0]){
+                if (res[0].equals(req[0])){
                     scanner.close();
                     return res;
                 }

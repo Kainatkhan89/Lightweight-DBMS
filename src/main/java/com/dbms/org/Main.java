@@ -3,6 +3,7 @@ package com.dbms.org;
 import com.dbms.org.auth.Authentication;
 import com.dbms.org.auth.CreateUser;
 import com.dbms.org.auth.User;
+import com.dbms.org.queries.Query;
 
 import java.util.Scanner;
 
@@ -32,6 +33,7 @@ public class Main
                 if (userInput == 1) {
                     Utils.print("Login selected.");
                     current_user = Authentication.login();
+                    System.out.println("\nLogin successful !!!\nNow, Enter your queries.\n");
                 } else if (userInput == 2) {
                     Utils.print("\nLet's sign you up!\n");
                     Utils.print(CreateUser.signup()? "\nSignup successful !!!\nNow, login with your new user.\n":"\nSomething went wrong. Please try again.\n");
@@ -43,12 +45,14 @@ public class Main
                 Utils.print("Invalid input. Please enter a valid number.");
             }
 
+            if(current_user.isInvalid()){
+                Utils.error("Oops! Something went wrong.");
+                System.exit(0);
+            }
+
+            String query = input.nextLine();
+            String queryType = query.split(" ")[0];
+
         }
-
-        
-
-
-
-        System.out.println(current_user.isInvalid());
     }
 }

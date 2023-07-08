@@ -61,7 +61,7 @@ public class AuthFile implements FileIO {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] res = line.split(",");
-                if (res[1] == req[1] && Encryption.decrypt(res[2].toString()) == req[2]){
+                if (res[1].equals(req[0]) &&  Encryption.decrypt(res[2].toString()).equals(req[1])){
                     scanner.close();
                     return res;
                 }
