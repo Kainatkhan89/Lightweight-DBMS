@@ -2,7 +2,7 @@ package com.dbms.org;
 
 public class Constant {
     
-    public final static String DATA_PATH = "data/";
+    public final static String DATA_PATH = "/Users/mohammadzainabbas/Desktop/Lightweight-DBMS/data/";
     public final static String AUTH_DIR_PATH = DATA_PATH + "auth/";
     public final static String DB_DIR_PATH = DATA_PATH + "db/";
     
@@ -11,6 +11,6 @@ public class Constant {
 
     public final static String DB_META_SUFFIX = "_meta.txt";
     public final static String DB_DATA_SUFFIX = "_data.txt";
-    public final static String SECRET_KEY = "DataMgmt";
+    public final static String SECRET_KEY = "mysecretkey12345";
     
 }

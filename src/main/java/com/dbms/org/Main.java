@@ -21,22 +21,26 @@ public class Main
 
         if(current_user.isInvalid()){
 
-            System.out.println("Welcome to Kainat DBMS. Select the option:\n 1. Login\n2. Signup");
+            Utils.lineSeparator();
+            
+            Utils.print("Welcome to Kainat DBMS.\n");
+            Utils.lineSeparator();
+            Utils.print("\nSelect the option:\n\n1. Login\n2. Signup\n");
             int userInput;
             try {
                 userInput = Integer.parseInt(input.nextLine());
                 if (userInput == 1) {
-                    System.out.println("Login selected.");
+                    Utils.print("Login selected.");
                     current_user = Authentication.login();
                 } else if (userInput == 2) {
-                    System.out.println("Signup selected.");
-                    System.out.println(CreateUser.signup()? "Signup successful":"Something went wrong");
+                    Utils.print("Signup selected.");
+                    Utils.print(CreateUser.signup()? "Signup successful":"Something went wrong");
                     System.exit(0);
                 } else {
-                    System.out.println("Invalid input. Please enter 1 for login or 2 for signup.");
+                    Utils.print("Invalid input. Please enter 1 for login or 2 for signup.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                Utils.print("Invalid input. Please enter a valid number.");
             }
 
         }

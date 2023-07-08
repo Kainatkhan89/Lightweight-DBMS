@@ -21,6 +21,7 @@ public class Encryption {
         }
         return null;
     }
+    
     public static String decrypt(String strToDecrypt) {
         try {
             SecretKeySpec secretKey = new SecretKeySpec(Constant.SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");

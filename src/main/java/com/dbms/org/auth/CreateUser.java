@@ -1,7 +1,7 @@
 package com.dbms.org.auth;
 
 import com.dbms.org.Constant;
-import java.io.FileNotFoundException;
+import com.dbms.org.Utils;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -9,55 +9,61 @@ import java.util.Scanner;
 
 public class CreateUser {
 
-    AuthFile authFile = new AuthFile();
-    private String userID;
-    private String userName;
-    private String password;
-    private String question;
-    private String answer;
+    private static AuthFile authFile = new AuthFile();
 
-    public CreateUser() {
+    private static int createNewUser(String username, String password) {
+        int userID = -1;
+        try {
+            LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(Constant.AUTH_FILE_PATH));
+            lineNumberReader.skip(Long.MAX_VALUE);
+            userID = lineNumberReader.getLineNumber() + 1;
+            lineNumberReader.close();
+        } catch (IOException e) {
+            Utils.error("Error reading file: " + e.getMessage());
+            return -1;
+        }
+
+        String encryptedPassword = Encryption.encrypt(password);
+        String[] userInfo = {String.valueOf(userID), username, encryptedPassword};
+        boolean is_success = authFile.fileWriter(Constant.AUTH_FILE_PATH, userInfo);
+        
+        return is_success ? userID : -1;
     }
-    public CreateUser(String userName, String password, String question, String answer) {
-        this.userName = userName;
-        this.password = password;
-        this.question = question;
-        this.answer = answer;
+
+    public static boolean addSecurityQuestion(int userID, String securityQuestion, String securityAnswer) {
+        String[] userInfo = {String.valueOf(userID), securityQuestion, securityAnswer};
+        return authFile.fileWriter(Constant.AUTH_QA_FILE_PATH, userInfo);
     }
 
     public static boolean signup() {
 
         Scanner input = new Scanner(System.in);
-         System.out.print("Enter username:");
+        Utils._print("Enter username: ");
         String userName = input.nextLine();
-        // verify username exists
 
-        System.out.print("\nEnter new password:");
+        String[] user_info = authFile.findUserName(userName);
+        if (user_info.length > 0) {
+            Utils.error("Username already exists. Please try again.");
+            input.close();
+            return false;
+        }
+
+        Utils._print("\nEnter new password: ");
         String password = input.nextLine();
 
-        System.out.println("Enter question");
+        Utils._print("Enter question: ");
         String securityQuestion = input.nextLine();
 
-        System.out.println("Enter answer");
+        Utils._print("Enter answer: ");
         String securityAnswer = input.nextLine();
 
-        System.out.println("User authentication information:");
-        System.out.println("Username: " + userName);
-        System.out.println("Password: " + password);
-        System.out.println("Security Question: " + securityQuestion);
-        System.out.println("Security Answer: " + securityAnswer);
+        input.close();
 
-        int noOfLines = -1;
-        try(LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(Constant.AUTH_FILE_PATH))) {
-            lineNumberReader.skip(Long.MAX_VALUE);
-            noOfLines = lineNumberReader.getLineNumber() + 1;
-        } catch (FileNotFoundException ex){} catch (IOException e) {
-            throw new RuntimeException(e);
+        int userID = createNewUser(userName, password);
+        if (userID == -1) {
+            Utils.error("Error creating user.");
+            return false;
         }
-        this.userID= String.valueOf(noOfLines);
-        authFile.fileWriter(Constant.AUTH_FILE_PATH, userID+","+userName+","+Encryption.encrypt(password));
-        authFile.fileWriter(Constant.AUTH_QA_FILE_PATH, userID+","+question+","+answer);
-        return true;
+        return addSecurityQuestion(userID, securityQuestion, securityAnswer);
     }
-
 }

@@ -6,5 +6,5 @@ public interface FileIO {
 
     public String[] fileReader(String path, String info);
 
-    boolean fileWriter(String path, String info) ;
+    boolean fileWriter(String path, String[] userInfo) ;
 }
