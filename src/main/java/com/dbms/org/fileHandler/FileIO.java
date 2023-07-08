@@ -1,8 +1,10 @@
 package com.dbms.org.fileHandler;
 
+import java.io.FileNotFoundException;
+
 public interface FileIO {
 
-    public String[] fileReader(String path);
+    public String[] fileReader(String path, String info);
 
-    public boolean fileWriter(String path);
+    boolean fileWriter(String path, String info) ;
 }

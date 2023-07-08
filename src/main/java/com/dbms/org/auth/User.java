@@ -7,15 +7,23 @@ public class User {
     private String name;
     private int id;
 
+    public User() {
+
+    }
+
     /**
      * Constructs a User object with the given name and id.
      *
      * @param name the name of the user
      * @param id   the id of the user
      */
-    public User(String name, int id) {
+    public User(int id, String name) {
         this.name = name;
         this.id = id;
+    }
+
+    public boolean isInvalid(){
+        return this.id==0 && this.name==null;
     }
 
     /**
