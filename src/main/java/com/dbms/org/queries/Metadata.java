@@ -1,6 +1,7 @@
 package com.dbms.org.queries;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Metadata {
 
@@ -17,7 +18,7 @@ public class Metadata {
 
         @Override
         public String toString() {
-            return "Field Name: " + name + ", Type: " + type + ", Constraint: " + constraint;
+            return name + "," + type + "," + constraint;
         }
     }
     
@@ -32,7 +33,10 @@ public class Metadata {
 
         @Override
         public String toString() {
-            return "Table Name: " + table_name + ", Fields: " + fields;
+            String result = fields.stream()
+                    .map(n -> String.valueOf(n))
+                    .collect(Collectors.joining("\n","",""));
+            return "Table Name: \n" + table_name + "\nFields:\n" + result;
         }
     }
 }

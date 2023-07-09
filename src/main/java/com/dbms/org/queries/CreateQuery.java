@@ -1,11 +1,17 @@
 package com.dbms.org.queries;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dbms.org.Constant;
 import com.dbms.org.Utils;
 import com.dbms.org.auth.User;
 import com.dbms.org.queries.Metadata.Field;
@@ -22,12 +28,13 @@ public class CreateQuery {
      *  
      * ```sql
      *  CREATE TABLE Persons (
-     *      PersonID int,
-     *      LastName varchar(255),
-     *      FirstName varchar(255),
-     *      Address varchar(255),
-     *      City varchar(255)
-     *  );
+        PersonID int PRIMARY KEY,
+        LastName varchar(255)  NOT NULL,
+        FirstName varchar(255) NOT NULL UNIQUE,
+        Address varchar(255) UNIQUE,
+        City varchar(255),
+        customer_id int REFERENCES Customers(id)
+        );
      * ```sql
      * 
      * @param query: The query to be parsed
@@ -36,11 +43,6 @@ public class CreateQuery {
      * @return void
      */
     public static void parse(String query, User current_user, boolean is_transaction) {
-
-        if (!query.toLowerCase().contains("table")) {
-            Utils.error("Invalid query. Please check the syntax.");
-            return;
-        }
 
         String tableName = null;
         List<Field> fields = new ArrayList<>();
@@ -69,7 +71,53 @@ public class CreateQuery {
 
         Table table = new Table(tableName, fields);
 
+        if(!is_transaction){
+            createTableFiles(table);
+        }
         Utils.print("Table created successfully.");
         Utils.print(table.toString());
+    }
+
+    public static void createTableFiles(Table table){
+
+        File metaFile = new File(Paths.get(Constant.DB_DIR_PATH, table.table_name+Constant.DB_META_SUFFIX).toUri());
+        File dataFile = new File(Paths.get(Constant.DB_DIR_PATH, table.table_name+Constant.DB_DATA_SUFFIX).toUri());
+
+        // Create necessary directories if they don't exist
+        File parentDir = metaFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        if (!metaFile.exists()) {
+            try {
+                metaFile.createNewFile();
+
+                FileWriter fileWriter = new FileWriter(metaFile, true); // Pass 'true' to enable appending
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.println(table.toString());
+                printWriter.close();
+
+            } catch (Exception e) {
+                Utils.error("Error creating table meta: " + e.getMessage());
+            }
+
+        }else{
+            Utils.error("Table already exists");
+            System.exit(0);
+        }
+
+        if (!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+
+            } catch (Exception e) {
+                Utils.error("Error creating table: " + e.getMessage());
+            }
+
+        }else{
+            Utils.error("Table already exists");
+            System.exit(0);
+        }
     }
 }
