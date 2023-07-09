@@ -1,16 +1,18 @@
 package com.dbms.org;
 
-public class Constant {
-    public final static String DATA_PATH = "T:\\GitHub\\lightweightDBMS\\data\\data";
-    public final static String AUTH_DIR_PATH = DATA_PATH + "auth/";
-    public final static String DB_DIR_PATH = DATA_PATH + "db/";
+import java.nio.file.Paths;
 
-    public final static String AUTH_FILE_PATH = AUTH_DIR_PATH + "user_pass.txt";
-    public final static String AUTH_QA_FILE_PATH = AUTH_DIR_PATH + "user_qa.txt";
+public class Constant {
+
+    public final static String PARENT_DIR = System.getProperty("user.dir");
+    public final static String DATA_DIR = Paths.get(PARENT_DIR, "data").toString();
+    public final static String AUTH_DIR_PATH = Paths.get(DATA_DIR, "auth").toString();
+    public final static String DB_DIR_PATH = Paths.get(DATA_DIR, "db").toString();
+
+    public final static String AUTH_FILE_PATH = Paths.get(AUTH_DIR_PATH, "user_pass.txt").toString();
+    public final static String AUTH_QA_FILE_PATH = Paths.get(AUTH_DIR_PATH, "user_qa.txt").toString();
 
     public final static String DB_META_SUFFIX = "_meta.txt";
     public final static String DB_DATA_SUFFIX = "_data.txt";
-
     public final static String SECRET_KEY = "mysecretkey12345";
-    
 }
