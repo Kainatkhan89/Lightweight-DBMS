@@ -3,11 +3,14 @@ package com.dbms.org;
 import com.dbms.org.auth.Authentication;
 import com.dbms.org.auth.CreateUser;
 import com.dbms.org.auth.User;
-import com.dbms.org.queries.Query;
+import com.dbms.org.queries.CreateQuery;
+import com.dbms.org.queries.InsertQuery;
+import com.dbms.org.queries.SelectQuery;
+import com.dbms.org.queries.UpdateQuery;
+import com.dbms.org.queries.DeleteQuery;
+import com.dbms.org.queries.TransactionQuery;
 
 import java.util.Scanner;
-
-import static java.lang.System.in;
 
 /**
  * Hello world!
@@ -52,6 +55,29 @@ public class Main
 
             String query = input.nextLine();
             String queryType = query.split(" ")[0];
+
+            switch(queryType.toUpperCase()) {
+                case "CREATE":
+                    CreateQuery.parse(query, current_user, false);
+                    break;
+                case "INSERT":
+                    InsertQuery.parse(query, current_user, false);
+                    break;
+                case "SELECT":
+                    SelectQuery.parse(query, current_user, false);
+                    break;
+                case "UPDATE":
+                    UpdateQuery.parse(query, current_user, false);
+                    break;
+                case "DELETE":
+                    DeleteQuery.parse(query, current_user, false);
+                    break;
+                case "TRANSACTION":
+                    TransactionQuery.parse(query, current_user, true);
+                    break;
+                default:
+                    Utils.error("Invalid query.");
+            }
 
         }
     }
