@@ -31,7 +31,7 @@ public class Main
             Utils.print("Welcome to Kainat DBMS.\n");
             Utils.lineSeparator();
             Utils.print("\nSelect the option:\n\n1. Login\n2. Signup\n");
-            int userInput;
+            /*int userInput;
             try {
                 userInput = Integer.parseInt(input.nextLine());
                 if (userInput == 1) {
@@ -52,7 +52,7 @@ public class Main
             if(current_user.isInvalid()){
                 Utils.error("Oops! Something went wrong.");
                 System.exit(0);
-            }
+            }*/
 
             while (input.hasNextLine()) {
                 String line = input.nextLine();
