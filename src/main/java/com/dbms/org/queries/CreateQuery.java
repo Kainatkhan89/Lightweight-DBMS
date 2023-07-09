@@ -44,19 +44,23 @@ public class CreateQuery {
 
         String tableName = null;
         List<Field> fields = new ArrayList<>();
-        Pattern createTablePattern = Pattern.compile("CREATE TABLE (\\w+) \\((.*)\\);", Pattern.DOTALL);
+
+        Pattern createTablePattern = Pattern.compile("CREATE TABLE (\\w+) \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = createTablePattern.matcher(query);
+
         if (matcher.find()) {
             tableName = matcher.group(1);
-            String[] fieldStrings = matcher.group(2).split(",");
+            String fieldsString = matcher.group(2).trim();
+
+            String[] fieldStrings = fieldsString.split(",");
             for (String fieldString : fieldStrings) {
-                String[] parts = fieldString.trim().split(" ");
+                String[] parts = fieldString.trim().split("\\s+", 3); // split by whitespace into maximum 3 parts
                 String name = parts[0];
                 String type = parts[1];
-                String constraint = parts.length > 2 ? String.join(" ", Arrays.copyOfRange(parts, 2, parts.length)) : "";
+                String constraint = parts.length > 2 ? parts[2] : "NONE";
                 fields.add(new Field(name, type, constraint));
-            }
-        }
+       }
+}
 
         if (tableName == null) {
             Utils.error("Invalid query. Please check the syntax.");

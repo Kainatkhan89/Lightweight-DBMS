@@ -21,6 +21,7 @@ public class Main
     public static void main( String[] args )
     {
         Scanner input = new Scanner(System.in);
+        StringBuilder inputBuilder = new StringBuilder();
         User current_user = new User();
 
         if(current_user.isInvalid()){
@@ -53,8 +54,20 @@ public class Main
                 System.exit(0);
             }
 
-            String query = input.nextLine();
-            String queryType = query.split(" ")[0];
+            while (input.hasNextLine()) {
+                String line = input.nextLine();
+                inputBuilder.append(line);
+                inputBuilder.append(System.lineSeparator()); // Add line separator for each line
+                if (line.contains(";")) {
+                    break;
+                }
+
+
+            }
+
+            input.close();
+            String query = inputBuilder.toString();
+            String queryType = query.trim().split(" ")[0];
 
             switch(queryType.toUpperCase()) {
                 case "CREATE":
