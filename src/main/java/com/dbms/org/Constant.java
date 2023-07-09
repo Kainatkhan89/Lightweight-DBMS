@@ -3,7 +3,6 @@ package com.dbms.org;
 import java.nio.file.Paths;
 
 public class Constant {
-
     public final static String PARENT_DIR = System.getProperty("user.dir");
     public final static String DATA_DIR = Paths.get(PARENT_DIR, "data").toString();
     public final static String AUTH_DIR_PATH = Paths.get(DATA_DIR, "auth").toString();
