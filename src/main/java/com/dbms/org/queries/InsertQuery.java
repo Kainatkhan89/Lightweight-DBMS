@@ -6,8 +6,6 @@ import com.dbms.org.auth.AuthFile;
 import com.dbms.org.auth.User;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.BufferedReader;
 import java.nio.file.Paths;
 import java.util.*;
@@ -34,28 +32,33 @@ public class InsertQuery {
 
         String tableName = null;
         Map<String, String> fieldValues = new HashMap<>();
-
+        
         Pattern insertPattern = Pattern.compile("INSERT INTO (\\w+) \\((.*?)\\)\\s*VALUES \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = insertPattern.matcher(query);
-
+        List<Field> fields = new ArrayList<Field>();
+        
         if (matcher.find()) {
             tableName = matcher.group(1);
+            if (tableName == null) {
+                throw new IllegalArgumentException("Invalid query: " + query);
+            }
+            
             String[] fieldNames = matcher.group(2).split(",");
             String[] values = matcher.group(3).split(",");
-
+            
+            Map<String, String> tempValues = new HashMap<>();
             for (int i = 0; i < fieldNames.length; i++) {
-                fieldValues.put(fieldNames[i].trim(), values[i].trim());
+                tempValues.put(fieldNames[i].trim(), values[i].trim());
+            }
+            
+            fields = parseTableMetaData(tableName);
+            for (Field field : fields) {
+                String value = tempValues.get(field.name);
+                fieldValues.put(field.name, value);
             }
         }
-
-        if (tableName == null) {
-            throw new IllegalArgumentException("Invalid query: " + query);
-        }
-
-        List<Field> fields = parseTableMetaData(tableName);
-
+        
         Table persons = new Table(tableName, fields);
-
         Insertion insertion = new Insertion(tableName, fieldValues);
 
         // return boolean if successful
@@ -68,8 +71,6 @@ public class InsertQuery {
             String[] array = fieldValues.values().toArray(new String[0]);
             file.fileWriter(dataFile.getPath(),array);
         }
-
-
     }
 
     public static List<Field> parseTableMetaData(String tableName) {
@@ -80,16 +81,16 @@ public class InsertQuery {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(metaFilePath));
             String line = reader.readLine();
-            int lineNo =0;
+            int lineNumber = 0;
             while (line != null) {
-                if(lineNo>2){
+                if(lineNumber > 2) {
                     String[] parts = line.split(",");
                     String name = parts[0];
                     String type = parts[1];
                     String constraint = parts[2];
                     fields.add(new Field(name, type, constraint));
                 }
-                lineNo++;
+                lineNumber++;
                 line = reader.readLine();
             }
             reader.close();
