@@ -2,8 +2,10 @@ package com.dbms.org.queries;
 
 import com.dbms.org.Constant;
 import com.dbms.org.Utils;
+import com.dbms.org.auth.AuthFile;
 import com.dbms.org.auth.User;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.BufferedReader;
@@ -33,7 +35,7 @@ public class InsertQuery {
         String tableName = null;
         Map<String, String> fieldValues = new HashMap<>();
 
-        Pattern insertPattern = Pattern.compile("INSERT INTO (\\w+) \\((.*?)\\) VALUES \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern insertPattern = Pattern.compile("INSERT INTO (\\w+) \\((.*?)\\)\\s*VALUES \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = insertPattern.matcher(query);
 
         if (matcher.find()) {
@@ -57,9 +59,17 @@ public class InsertQuery {
         Insertion insertion = new Insertion(tableName, fieldValues);
 
         // return boolean if successful
-        validateInsertion(insertion, persons);
+        boolean validatedInsertedData = validateInsertion(insertion, persons);
 
-        // add to table
+        if(validatedInsertedData && !is_transaction){
+            // add to table
+            AuthFile file = new AuthFile();
+            File dataFile = new File(Paths.get(Constant.DB_DIR_PATH, tableName+Constant.DB_DATA_SUFFIX).toUri());
+            String[] array = fieldValues.values().toArray(new String[0]);
+            file.fileWriter(dataFile.getPath(),array);
+        }
+
+
     }
 
     public static List<Field> parseTableMetaData(String tableName) {
@@ -70,12 +80,16 @@ public class InsertQuery {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(metaFilePath));
             String line = reader.readLine();
+            int lineNo =0;
             while (line != null) {
-                String[] parts = line.split(",");
-                String name = parts[0];
-                String type = parts[1];
-                String constraint = parts[2];
-                fields.add(new Field(name, type, constraint));
+                if(lineNo>2){
+                    String[] parts = line.split(",");
+                    String name = parts[0];
+                    String type = parts[1];
+                    String constraint = parts[2];
+                    fields.add(new Field(name, type, constraint));
+                }
+                lineNo++;
                 line = reader.readLine();
             }
             reader.close();
@@ -87,7 +101,7 @@ public class InsertQuery {
         return fields;
     }
 
-    public static void validateInsertion(Insertion insertion, Table table) {
+    public static boolean validateInsertion(Insertion insertion, Table table) {
         if (!insertion.tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
         }
@@ -98,7 +112,7 @@ public class InsertQuery {
             Field field = table.fields.stream().filter(f -> f.name.equalsIgnoreCase(fieldName)).findFirst().orElse(null);
             
             if (field == null) {
-                throw new IllegalArgumentException("Field " + fieldName + " does not exist in the table " + table.name);
+                throw new IllegalArgumentException("Field " + fieldName + " does not exist in the table " + table.table_name);
             }
 
             if ("NOT NULL".equalsIgnoreCase(field.constraint) && value == null) {
@@ -111,6 +125,7 @@ public class InsertQuery {
 
             // For simplicity, not validating type or REFERENCES constraint.
         }
+        return true;
     }
 
     public static boolean isUnique(String value, Table table, String fieldName) {
