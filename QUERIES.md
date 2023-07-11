@@ -27,3 +27,52 @@ VALUES (2, 'Smith', 'Jane', 'Los Angeles', 1002);
 INSERT INTO Persons (personID, lastName, firstName, address, city)
 VALUES (3, 'Johnson', 'Mark', '456 Elm St', 'Chicago');
 ```
+
+### Selecting data from the table
+
+```sql
+SELECT * FROM Persons
+WHERE personID = 1;
+```
+
+```sql
+SELECT *
+FROM Persons
+WHERE firstName = 'Johnny';
+```
+
+```sql
+SELECT personID, firstName, lastName, address, city, customer_id
+FROM Persons;
+```
+
+```sql
+SELECT personID, firstName, lastName, address, city, customer_id
+FROM Persons
+WHERE firstName = 'John';
+```
+
+### Updating data in the table
+
+```sql
+UPDATE Persons
+SET address = '123 Main Street'
+WHERE personID = 1;
+```
+
+```sql
+UPDATE Persons
+SET firstName = 'Sarah', lastName = 'Johnson', address = '456 Elm Street'
+WHERE personID = 2;
+```
+
+### Deleting data from the table
+
+```sql
+DELETE FROM Persons
+WHERE personID = 1;
+```
+
+```sql
+DELETE FROM Persons; 
+```

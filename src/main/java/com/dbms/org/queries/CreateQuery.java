@@ -2,11 +2,9 @@ package com.dbms.org.queries;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,11 +15,7 @@ import com.dbms.org.auth.User;
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class CreateQuery {
-
-    private static final Pattern TABLE_PATTERN = Pattern.compile("CREATE TABLE (\\w+) \\((.*)\\);", Pattern.CASE_INSENSITIVE);
-    private static final Pattern FIELD_PATTERN = Pattern.compile("(\\w+) (\\w+\\(.*?\\)|\\w+)", Pattern.CASE_INSENSITIVE);
-
+public class CreateQuery implements Query {
 
     /*
      * Assumes that the query is of the form: 

@@ -2,7 +2,11 @@ package com.dbms.org.queries;
 
 import com.dbms.org.auth.User;
 
-public interface Query {
+import java.util.ArrayList;
+import java.util.List;
 
-    void parse(String query, User current_user, boolean is_transaction);
+public interface Query {
+    //String tableName = new String();
+    //List<Metadata.Field> fields = new ArrayList<>();
+    static void  parse(String query, User current_user, boolean is_transaction){};
 }

@@ -16,7 +16,7 @@ import java.io.IOException;
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class InsertQuery {
+public class InsertQuery implements Query  {
     
     static class Insertion {
         String tableName;
@@ -31,7 +31,7 @@ public class InsertQuery {
     public static void parse(String query, User current_user, boolean is_transaction) {
 
         String tableName = null;
-        Map<String, String> fieldValues = new HashMap<>();
+        Map<String, String> fieldValues = new LinkedHashMap<>();
         
         Pattern insertPattern = Pattern.compile("INSERT INTO (\\w+) \\((.*?)\\)\\s*VALUES \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = insertPattern.matcher(query);
@@ -58,11 +58,11 @@ public class InsertQuery {
             }
         }
         
-        Table persons = new Table(tableName, fields);
+        Table table = new Table(tableName, fields);
         Insertion insertion = new Insertion(tableName, fieldValues);
 
         // return boolean if successful
-        boolean validatedInsertedData = validateInsertion(insertion, persons);
+        boolean validatedInsertedData = validateInsertion(insertion, table);
 
         if(validatedInsertedData && !is_transaction){
             // add to table

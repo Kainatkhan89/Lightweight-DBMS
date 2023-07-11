@@ -20,8 +20,15 @@ public class Authentication {
         userName = input.nextLine();
         System.out.print("\nEnter new password:");
         password = input.nextLine();
+        String[] userInfo = null;
+        String[] usersData = authfile.fileReader(Constant.AUTH_FILE_PATH);
+        for(String info : usersData){
+            String[] res = info.split(",");
+            if (res[1].equals(userName) &&  Encryption.decrypt(res[2].toString()).equals(password)){
+                userInfo = res;
+            }
+        }
 
-        String[] userInfo = authfile.fileReader(Constant.AUTH_FILE_PATH, userName+","+password);
         if(userInfo!=null){
             userID=userInfo[0];
             User user = new User(Integer.parseInt(userInfo[0]), userInfo[1]);

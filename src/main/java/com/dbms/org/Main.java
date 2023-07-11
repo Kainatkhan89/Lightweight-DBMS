@@ -27,7 +27,7 @@ public class Main
         if(current_user.isInvalid()){
 
             Utils.lineSeparator();
-            
+
             Utils.print("Welcome to Kainat DBMS.\n");
             Utils.lineSeparator();
             Utils.print("\nSelect the option:\n\n1. Login\n2. Signup\n");

@@ -4,6 +4,8 @@ import com.dbms.org.fileHandler.FileIO;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import com.dbms.org.Utils;
 import java.io.FileWriter;
@@ -53,20 +55,19 @@ public class AuthFile implements FileIO {
      * @return
      */
     @Override
-    public String[] fileReader(String path, String info) {
+    public String[] fileReader(String path) {
         try {
-            String[] req = info.split(",");
             File file = new File(path);
+            List<String> fileData = new ArrayList<>();
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] res = line.split(",");
-                if (res[1].equals(req[0]) &&  Encryption.decrypt(res[2].toString()).equals(req[1])){
-                    scanner.close();
-                    return res;
-                }
+                fileData.add(line);
             }
+            String[] res = new String[0];
+            res = fileData.toArray(res);
             scanner.close();
+            return res;
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + e.getMessage());
         }
