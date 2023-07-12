@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,27 +13,17 @@ import com.dbms.org.auth.User;
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class CreateQuery extends Query {
+public class CreateQuery extends Query{
 
-    /*
-     * Assumes that the query is of the form: 
-     *  
-     * ```sql
-     *  CREATE TABLE Persons (
-        PersonID int PRIMARY KEY,
-        LastName varchar(255)  NOT NULL,
-        FirstName varchar(255) NOT NULL UNIQUE,
-        Address varchar(255) UNIQUE,
-        City varchar(255),
-        customer_id int REFERENCES Customers(id)
-        );
-     * ```sql
-     * 
-     * @param query: The query to be parsed
-     * @param current_user: The current user
-     * @param is_transaction: Whether the query is part of a transaction
-     * @return void
-     */
+    /**
+
+     * Parses the given query string to create a new table in the database.
+     *
+     * @param query The CREATE TABLE query string to parse.
+     * @param current_user The current user executing the query.
+     * @param is_transaction A flag indicating if the query is part of a transaction.
+     * @throws IllegalArgumentException If the query syntax is invalid.
+     **/
     public static void parse(String query, User current_user, boolean is_transaction) {
 
         Pattern createTablePattern = Pattern.compile("CREATE TABLE (\\w+) \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
@@ -45,7 +33,9 @@ public class CreateQuery extends Query {
             tableName = matcher.group(1);
             String fieldsString = matcher.group(2).trim();
 
+            // Split the field definitions into individual fields
             String[] fieldStrings = fieldsString.split(",");
+            // Process each field definition and create Field objects
             for (String fieldString : fieldStrings) {
                 String[] parts = fieldString.trim().split("\\s+", 3); // split by whitespace into maximum 3 parts
                 String name = parts[0];
@@ -59,16 +49,22 @@ public class CreateQuery extends Query {
             Utils.error("Invalid query. Please check the syntax.");
             return;
         }
-
+        // Create the table object
         Table table = new Table(tableName, fields);
 
         if(!is_transaction){
             createTableFiles(table);
         }
+        // Print success message and table details
         Utils.print("Table created successfully.");
         Utils.print(table.toString());
     }
 
+    /**
+     * Creates the meta and data files for the specified table.
+     *
+     * @param table The table for which to create the files.
+     */
     public static void createTableFiles(Table table){
 
         File metaFile = new File(Paths.get(Constant.DB_DIR_PATH, table.table_name+Constant.DB_META_SUFFIX).toUri());
@@ -80,6 +76,7 @@ public class CreateQuery extends Query {
             parentDir.mkdirs();
         }
 
+        // Create the meta file if it doesn't exist
         if (!metaFile.exists()) {
             try {
                 metaFile.createNewFile();

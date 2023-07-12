@@ -1,5 +1,7 @@
 package com.dbms.org;
 
+import com.dbms.org.auth.Authentication;
+import com.dbms.org.auth.CreateUser;
 import com.dbms.org.auth.User;
 import com.dbms.org.queries.CreateQuery;
 import com.dbms.org.queries.InsertQuery;
@@ -10,26 +12,22 @@ import com.dbms.org.queries.TransactionQuery;
 
 import java.util.Scanner;
 
-/**
- * Hello world!
- *
- */
-public class Main
-{
-    public static void main( String[] args )
-    {
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         StringBuilder inputBuilder = new StringBuilder();
         User current_user = new User();
 
-        if(current_user.isInvalid()){
-
+        if (current_user.isInvalid()) {
             Utils.lineSeparator();
 
             Utils.print("Welcome to Kainat DBMS.\n");
             Utils.lineSeparator();
             Utils.print("\nSelect the option:\n\n1. Login\n2. Signup\n");
-            /*int userInput;
+
+            int userInput;
             try {
                 userInput = Integer.parseInt(input.nextLine());
                 if (userInput == 1) {
@@ -38,7 +36,7 @@ public class Main
                     System.out.println("\nLogin successful !!!\nNow, Enter your queries.\n");
                 } else if (userInput == 2) {
                     Utils.print("\nLet's sign you up!\n");
-                    Utils.print(CreateUser.signup()? "\nSignup successful !!!\nNow, login with your new user.\n":"\nSomething went wrong. Please try again.\n");
+                    Utils.print(CreateUser.signup() ? "\nSignup successful !!!\nNow, login with your new user.\n" : "\nSomething went wrong. Please try again.\n");
                     System.exit(0);
                 } else {
                     Utils.print("Invalid input. Please enter 1 for login or 2 for signup.");
@@ -47,10 +45,10 @@ public class Main
                 Utils.print("Invalid input. Please enter a valid number.");
             }
 
-            if(current_user.isInvalid()){
+            if (current_user.isInvalid()) {
                 Utils.error("Oops! Something went wrong.");
                 System.exit(0);
-            }*/
+            }
 
             while (input.hasNextLine()) {
                 String line = input.nextLine();
@@ -65,7 +63,7 @@ public class Main
             String query = inputBuilder.toString();
             String queryType = query.trim().split(" ")[0];
 
-            switch(queryType.toUpperCase()) {
+            switch (queryType.toUpperCase()) {
                 case "CREATE":
                     CreateQuery.parse(query, current_user, false);
                     break;
@@ -87,7 +85,6 @@ public class Main
                 default:
                     Utils.error("Invalid query.");
             }
-
         }
     }
 }

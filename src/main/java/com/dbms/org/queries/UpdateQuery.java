@@ -15,10 +15,18 @@ import java.util.regex.Pattern;
 
 public class UpdateQuery extends Query {
 
-    static class Updation {
+    /**
+     Represents an Updation query for updating records in a table.
+     */
+    public static class Updation {
         String tableName;
         Map<String, String> fieldValues;
 
+        /**
+         Constructs an Updation object with the specified table name and field values.
+         @param tableName The name of the table to update records in.
+         @param fieldValues A map of field names and their corresponding new values.
+         */
         Updation(String tableName, Map<String, String> fieldValues) {
             this.tableName = tableName;
             this.fieldValues = fieldValues;
@@ -35,13 +43,13 @@ public class UpdateQuery extends Query {
 
         // Regex patterns
 
-        Pattern updatePattern = Pattern.compile("UPDATE\\s+(\\w+)\\s+SET\\s+((?:[^;]+?)(?=\\s+WHERE|$))\\s*(?:WHERE\\s+(.*))?",Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern updatePattern = Pattern.compile("UPDATE\\s+(\\w+)\\s+SET\\s+(.*?)\\s+WHERE\\s+(.*)?");
         Matcher matcher = updatePattern.matcher(query);
 
-        if(!matcher.find()){
+        /*if(!matcher.find()){
             updatePattern = Pattern.compile("UPDATE\\s+(\\w+)\\s+SET\\s+(.*?);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
             matcher = updatePattern.matcher(query);
-        }
+        }*/
         // Match columns and values
         if (matcher.find()) {
 
@@ -105,6 +113,14 @@ public class UpdateQuery extends Query {
         }
     }
 
+    /**
+     * Validates the updation query by checking if the specified field values are valid for the given table.
+     *
+     * @param updation The Updation object containing the table name and field values to update.
+     * @param table    The Table object representing the table.
+     * @return True if the updation query is valid, false otherwise.
+     * @throws IllegalArgumentException If the table names do not match or if a field does not exist or has a duplicate value (for UNIQUE fields).
+     */
     public static boolean validateUpdation(Updation updation, Table table) {
         if (!updation.tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
@@ -127,11 +143,32 @@ public class UpdateQuery extends Query {
         }
         return true;
     }
+
+    /**
+     * Checks if a value is unique for a given field in a table.
+     *
+     * @param value The value to check for uniqueness.
+     * @param table The table metadata.
+     * @param fieldName The name of the field to check for uniqueness.
+     * @return True if the value is unique, false otherwise.
+     * @implNote In a real-world application, this method would typically query the database to check for uniqueness.
+     *  However, in this example, we'll just return true to indicate that the value is unique.
+     */
     public static boolean isUnique(String value, Table table, String fieldName) {
         // In a real-world application, you would need to check the database to determine if the value is unique.
         // For simplicity, we'll just return true in this example.
         return true;
     }
+    /**
+     * Updates the data in the table based on the specified condition and update values.
+     *
+     * @param table           The Table object representing the table.
+     * @param conditionColumn The column name for the condition.
+     * @param conditionValue  The value to match in the condition column.
+     * @param updateColumns   The array of column names to update.
+     * @param updateValues    The array of values to set for the update columns.
+     * @throws IllegalArgumentException If the condition column or update columns are not found in the table.
+     */
     public static void updateData(Table table, String conditionColumn, String conditionValue, String[] updateColumns, String[] updateValues) {
         String filePath = Paths.get(Constant.DB_DIR_PATH, table.table_name + Constant.DB_DATA_SUFFIX).toString();
 
@@ -154,9 +191,7 @@ public class UpdateQuery extends Query {
                 int conditionColumnIndex = table.getColumnIndex(conditionColumn);
 
                 if (conditionColumnIndex == -1) {
-                    // Condition column not found
-                    System.out.println("Condition column not found");
-                    return;
+                    throw new IllegalArgumentException("Condition column not found");
                 }
 
                 // Check if condition matches
@@ -174,8 +209,7 @@ public class UpdateQuery extends Query {
                     int columnIndex = table.getColumnIndex(updateColumn);
 
                     if (columnIndex == -1) {
-                        System.out.println("Update column '" + updateColumn + "' not found");
-                        return;
+                        throw new IllegalArgumentException("Update column '" + updateColumn + "' not found");
                     }
 
                     // Update the value

@@ -2,21 +2,28 @@ package com.dbms.org.queries;
 
 import com.dbms.org.auth.User;
 
-public class TransactionQuery {
+/**
+ * The TransactionQuery class is responsible for parsing transaction-related queries.
+ */
+public class TransactionQuery extends Query {
 
+    /**
+     * Parses the transaction query and performs necessary operations.
+     *
+     * @param query         The transaction query to be parsed.
+     * @param current_user  The current user object.
+     * @param is_transaction Specifies if the query is part of a transaction.
+     */
     public static void parse(String query, User current_user, boolean is_transaction) {
 
-        // CHECK IF KEYWORD ROLLBACK IS PRESENT THEN DON'T DO ANYTHING
+        // Check if the keyword ROLLBACK is present, then don't do anything
 
-        // CHECK IF KEYWORD COMMIT, ROLLBACK NOT EXIST THEN THROW ERROR
+        // Check if the keywords COMMIT and ROLLBACK are not present, then throw an error
 
-        // END TRANSACTION CHECK AS WELL
+        // Check for the END TRANSACTION keyword as well
 
-        // LINKED MAP STRUCTURE TO PUT ALL QUEIRES IN THE LIST
+        // Use a LinkedHashMap structure to put all queries in the list
+        // The key can be the type of query
 
-        //KEY CAN BE TYPE OF QUERY
-
-
-        
     }
 }

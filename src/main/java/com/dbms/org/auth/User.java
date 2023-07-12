@@ -22,9 +22,16 @@ public class User {
         this.id = id;
     }
 
-    public boolean isInvalid(){
-        return this.id==0 && this.name==null;
+    /**
+     * Checks if the User instance is invalid.
+     * An instance is considered invalid if the id is zero and the name is null.
+     *
+     * @return true if the User instance is invalid, false otherwise.
+     */
+    public boolean isInvalid() {
+        return this.id == 0 && this.name == null;
     }
+
 
     /**
      * Retrieves the name of the user.

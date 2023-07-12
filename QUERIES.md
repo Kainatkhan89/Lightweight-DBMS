@@ -10,6 +10,13 @@ CREATE TABLE Persons (
     customer_id int REFERENCES Customers(id)
 );
 ```
+```sql
+CREATE TABLE Customer (
+    customerID int PRIMARY KEY,
+    firstName varchar(255) NOT NULL UNIQUE,
+    lastName varchar(255)  NOT NULL,
+);
+```
 
 ### Inserting data into the table
 

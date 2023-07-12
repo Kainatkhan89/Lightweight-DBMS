@@ -11,8 +11,26 @@ import com.dbms.org.Utils;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Represents a file handler for authentication-related operations.
+ */
 public class AuthFile implements FileIO {
 
+    /**
+     * Finds the user with the specified username in the authentication file.
+     *
+     * @param username The username to search for.
+     * @return An array of strings representing the user information if found, or an empty array if not found.
+     */
     public String[] findUserName(String username) {
         File file = new File(Constant.AUTH_FILE_PATH);
 
@@ -50,10 +68,6 @@ public class AuthFile implements FileIO {
         return new String[]{};
     }
 
-    /**
-     * @param path
-     * @return
-     */
     @Override
     public String[] fileReader(String path) {
         try {
@@ -74,10 +88,6 @@ public class AuthFile implements FileIO {
         return new String[0];
     }
 
-    /**
-     * @param path
-     * @return
-     */
     @Override
     public boolean fileWriter(String path, String[] userInfo) {
         try {
@@ -107,5 +117,5 @@ public class AuthFile implements FileIO {
         }
         return false;
     }
-
 }
+

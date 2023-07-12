@@ -14,16 +14,33 @@ import com.dbms.org.queries.Metadata.Table;
 
 public class InsertQuery extends Query {
 
-    static class Insertion {
+    /**
+     * Represents an insertion operation, specifying the table name and field values to insert.
+     */
+    public static class Insertion {
         String tableName;
         Map<String, String> fieldValues;
 
+        /**
+         * Constructs an Insertion object with the specified table name and field values.
+         *
+         * @param tableName    The name of the table to insert into.
+         * @param fieldValues  The map of field names and corresponding values to insert.
+         */
         Insertion(String tableName, Map<String, String> fieldValues) {
             this.tableName = tableName;
             this.fieldValues = fieldValues;
         }
     }
 
+    /**
+     * Parses an INSERT query and performs the corresponding actions.
+     *
+     * @param query The INSERT query to parse.
+     * @param current_user The current user executing the query.
+     * @param is_transaction Indicates whether the query is part of a transaction.
+     * @throws IllegalArgumentException If the query is invalid.
+     */
     public static void parse(String query, User current_user, boolean is_transaction) {
 
         //String tableName = null;
@@ -67,6 +84,16 @@ public class InsertQuery extends Query {
         }
     }
 
+    /**
+     * Validates the data to be inserted into a table.
+     *
+     * @param insertion The Insertion object containing the table name and field values.
+     * @param table The table metadata.
+     * @return True if the data is valid for insertion, false otherwise.
+     * @throws IllegalArgumentException If the table names do not match, a field does not exist in the table,
+     * a null value is provided for a NOT NULL field, or a duplicate value is provided
+     * for a UNIQUE field.
+     */
     public static boolean validateInsertion(Insertion insertion, Table table) {
         if (!insertion.tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
@@ -94,6 +121,16 @@ public class InsertQuery extends Query {
         return true;
     }
 
+    /**
+     * Checks if a value is unique for a given field in a table.
+     *
+     * @param value The value to check for uniqueness.
+     * @param table The table metadata.
+     * @param fieldName The name of the field to check for uniqueness.
+     * @return True if the value is unique, false otherwise.
+     * @implNote In a real-world application, this method would typically query the database to check for uniqueness.
+     *  However, in this example, we'll just return true to indicate that the value is unique.
+     */
     public static boolean isUnique(String value, Table table, String fieldName) {
         // In a real-world application, you would need to check the database to determine if the value is unique.
         // For simplicity, we'll just return true in this example.

@@ -13,8 +13,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.dbms.org.queries.Metadata.Table;
 
+/**
+ A class representing the DeleteQuery.
+ */
 public class DeleteQuery extends Query {
 
+    /**
+     * Parses the DELETE query, extracts the table name and condition, validates the deletion operation,
+     * and performs the deletion if validation is successful.
+     *
+     * @param query The DELETE query.
+     * @param current_user The current user executing the query.
+     * @param is_transaction A boolean indicating if the query is part of a transaction.
+     */
     public static void parse(String query, User current_user, boolean is_transaction) {
 
         String conditionField = null;
@@ -62,7 +73,13 @@ public class DeleteQuery extends Query {
             Utils.error("Columns are not valid");
         }
     }
-
+    /**
+     * Validates the deletion operation by checking if the condition column exists in the table.
+     *
+     * @param table The table in which the deletion is performed.
+     * @param conditionField The condition field/column.
+     * @return {@code true} if the deletion is valid, {@code false} otherwise.
+     **/
     public static boolean validateDeletion(Metadata.Table table,  String conditionField) {
         if (!tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
@@ -73,7 +90,13 @@ public class DeleteQuery extends Query {
             conditionFieldExists = table.fields.stream().anyMatch(field -> field.name.contains(conditionField));
         return conditionFieldExists;
     }
-
+    /**
+     *Deletes the data from the specified table based on the condition.
+     *
+     *@param table The table from which to delete the data.
+     *@param conditionColumn The condition column.
+     *@param conditionValue The condition value.
+     */
     public static void deleteData(Table table, String conditionColumn, String conditionValue) {
         String filePath = Paths.get(Constant.DB_DIR_PATH, table.table_name + Constant.DB_DATA_SUFFIX).toString();
 
@@ -112,6 +135,8 @@ public class DeleteQuery extends Query {
                     updatedLines.add(line);
                 }
             }
+        }else{
+            Utils.warning("All data will be deleted !!");
         }
 
         // Write the updated lines back to the file

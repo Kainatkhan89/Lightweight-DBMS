@@ -13,24 +13,39 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class SelectQuery extends Query  {
+public class SelectQuery extends Query {
 
-    static class Selection {
+    /**
+     * Represents a Selection query for retrieving data from a table.
+     */
+    public static class Selection {
         String tableName;
         String[] fields;
 
-        Selection(String tableName, String[] fieldValues) {
+        /**
+
+         Constructs a Selection object with the specified table name and fields.
+         @param tableName The name of the table to select data from.
+         @param fields An array of field names to be selected.
+         */
+        Selection(String tableName, String[] fields) {
             this.tableName = tableName;
-            this.fields = fieldValues;
+            this.fields = fields;
         }
     }
 
+    /**
+     * Parses the SELECT query and performs the corresponding actions.
+     *
+     * @param query         The SELECT query string to parse.
+     * @param current_user  The current user performing the query.
+     * @param is_transaction Boolean value indicating if the query is part of a transaction.
+     */
     public static void parse(String query, User current_user, boolean is_transaction) {
 
         String[] condition = new String[0];
@@ -82,36 +97,15 @@ public class SelectQuery extends Query  {
         }
     }
 
-    public static List<Field> parseTableMetaData(String tableName) {
-        List<Field> fields = new ArrayList<>();
-
-        String metaFilePath = Paths.get(Constant.DB_DIR_PATH, tableName + Constant.DB_META_SUFFIX).toString();
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(metaFilePath));
-            String line = reader.readLine();
-            int lineNumber = 0;
-            while (line != null) {
-                if(lineNumber > 2) {
-                    String[] parts = line.split(",");
-                    String name = parts[0];
-                    String type = parts[1];
-                    String constraint = parts[2];
-                    fields.add(new Field(name, type, constraint));
-                }
-                lineNumber++;
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (IOException e) {
-            Utils.error("Error reading table metadata file: " + metaFilePath);
-            System.exit(0);
-        }
-
-        return fields;
-    }
-
-    // This function is just validating if all the columns are valid in query and conditions
+    /**
+     * Validates the selection query by checking if the table name, selected fields, and condition field exist in the table.
+     *
+     * @param selection      The Selection object representing the selection query.
+     * @param table          The Table object representing the table.
+     * @param conditionField The name of the condition field.
+     * @return True if the selection query is valid, false otherwise.
+     * @throws IllegalArgumentException If the table names do not match or if the condition field does not exist.
+     */
     public static boolean validateSelection(Selection selection, Table table, String conditionField) {
         if (!selection.tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
@@ -121,16 +115,18 @@ public class SelectQuery extends Query  {
 
         if (selection.fields.length == 1 && selection.fields[0].equals("*")) {
             // Handle the case when all fields are selected
-            if(conditionField != null)
+            if (conditionField != null) {
                 conditionFieldExists = table.fields.stream().anyMatch(field -> field.name.contains(conditionField));
+            }
             return conditionFieldExists;
         } else {
             // Handle the case when specific fields are selected
             boolean allFieldsExist = Arrays.stream(selection.fields)
                     .allMatch(item -> table.fields.stream().anyMatch(obj -> obj.name.equals(item)));
 
-            if(conditionField != null)
+            if (conditionField != null) {
                 conditionFieldExists = table.fields.stream().anyMatch(field -> field.name.contains(conditionField));
+            }
 
             if (!conditionFieldExists) {
                 throw new IllegalArgumentException("Condition field does not exist in the table");
@@ -139,7 +135,17 @@ public class SelectQuery extends Query  {
             return allFieldsExist && conditionFieldExists;
         }
     }
-    static String printResults(Table table, String[] selectedColumns, String conditionColumn, String conditionValue) {
+
+    /**
+     * Prints the results of a selection query based on the specified table, selected columns, and condition.
+     *
+     * @param table           The Table object representing the table.
+     * @param selectedColumns The selected columns to include in the results.
+     * @param conditionColumn The name of the condition column.
+     * @param conditionValue  The value of the condition column.
+     * @return A String representation of the selected results.
+     */
+    public static String printResults(Table table, String[] selectedColumns, String conditionColumn, String conditionValue) {
         StringBuilder results = new StringBuilder();
 
         // Read from table
@@ -205,4 +211,5 @@ public class SelectQuery extends Query  {
 
         return results.toString();
     }
+
 }
