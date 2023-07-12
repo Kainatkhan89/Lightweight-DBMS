@@ -15,7 +15,7 @@ import com.dbms.org.auth.User;
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class CreateQuery implements Query {
+public class CreateQuery extends Query {
 
     /*
      * Assumes that the query is of the form: 
@@ -37,9 +37,6 @@ public class CreateQuery implements Query {
      * @return void
      */
     public static void parse(String query, User current_user, boolean is_transaction) {
-
-        String tableName = null;
-        List<Field> fields = new ArrayList<>();
 
         Pattern createTablePattern = Pattern.compile("CREATE TABLE (\\w+) \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = createTablePattern.matcher(query);

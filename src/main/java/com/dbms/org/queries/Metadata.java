@@ -38,5 +38,14 @@ public class Metadata {
                     .collect(Collectors.joining("\n","",""));
             return "Table Name: \n" + table_name + "\nFields:\n" + result;
         }
+
+        public int getColumnIndex(String columnName) {
+            for (int i = 0; i < fields.size(); i++) {
+                if (fields.get(i).name.equalsIgnoreCase(columnName)) {
+                    return i;
+                }
+            }
+            return -1; // Column not found
+        }
     }
 }

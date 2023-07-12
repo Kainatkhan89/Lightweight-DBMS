@@ -1,7 +1,5 @@
 package com.dbms.org;
 
-import com.dbms.org.auth.Authentication;
-import com.dbms.org.auth.CreateUser;
 import com.dbms.org.auth.User;
 import com.dbms.org.queries.CreateQuery;
 import com.dbms.org.queries.InsertQuery;
@@ -61,8 +59,6 @@ public class Main
                 if (line.contains(";")) {
                     break;
                 }
-
-
             }
 
             input.close();
@@ -85,7 +81,7 @@ public class Main
                 case "DELETE":
                     DeleteQuery.parse(query, current_user, false);
                     break;
-                case "TRANSACTION":
+                case "BEGIN":
                     TransactionQuery.parse(query, current_user, true);
                     break;
                 default:

@@ -13,6 +13,10 @@ public class Utils {
         print("[ log ] : " + message);
     }
 
+    public static void warning(String message){
+        print("[ warning ] : " + message);
+    }
+
     public static void error(String message){
         System.err.println("[ error ] : " + message);
     }

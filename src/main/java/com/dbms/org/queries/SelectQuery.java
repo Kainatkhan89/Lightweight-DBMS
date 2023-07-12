@@ -10,10 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,61 +19,66 @@ import java.util.stream.IntStream;
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class SelectQuery implements Query  {
+public class SelectQuery extends Query  {
 
     static class Selection {
         String tableName;
-        List<Field> fields;
+        String[] fields;
 
-        Selection(String tableName, List<Field> fieldValues) {
+        Selection(String tableName, String[] fieldValues) {
             this.tableName = tableName;
             this.fields = fieldValues;
         }
     }
 
     public static void parse(String query, User current_user, boolean is_transaction) {
-        String tableName = null;
-        List<Field> fields = new ArrayList<>();
-        String[] conditions = new String[0];
 
-        String pattern = "(?i)\\bSELECT\\b\\s(.*?)\\bFROM\\b\\s(.*?)\\bWHERE\\b(.*)|$";
-        Pattern regex = Pattern.compile(pattern, Pattern.DOTALL);
-        Matcher matcher = regex.matcher(query);
+        String[] condition = new String[0];
+        String[] fieldStrings = new String[0];
+        String conditionField = null;
+        String conditionValue = null;
+
+        String regex = "SELECT\\s+(.*?)\\s+FROM\\s+(\\w+)(?:\\s+WHERE\\s+(.*))?";
+        Pattern selectPattern = Pattern.compile(regex,Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = selectPattern.matcher(query);
 
         if (matcher.find()) {
             String fieldsString = matcher.group(1);
-            tableName = matcher.group(2).replaceAll("[\\r\\n]+", "");;
-            String conditionsString = matcher.group(3).replaceAll("[\\r\\n]+", "").replaceAll(";", "");;
+            fieldStrings = fieldsString.split(",\\s*");
+
+            tableName = matcher.group(2);
             if (tableName == null) {
                 throw new IllegalArgumentException("Invalid query: " + query);
             }
-            String[] fieldStrings = fieldsString.split(",");
-            for (String fieldString : fieldStrings) {
-                fields.add(new Field(fieldString.trim(),"",""));
+
+            if(matcher.group(3)!=null){
+                String[] conditionStrings = matcher.group(3).replaceAll(";", "").trim().split("(?i)\\bAND\\b|\\bOR\\b");
+
+                //For this Assignment we need only one condition, so I am selecting first one only
+                String firstCondition = conditionStrings[0];
+                condition = firstCondition.split("=");
+                conditionField = condition[0].trim();
+                conditionValue = condition[1].trim();
             }
-            String[] conditionStrings = conditionsString.trim().split("(?i)\\bAND\\b|\\bOR\\b");
-            conditions = conditionStrings[0].split("=");
         }
-        Selection selection = new Selection(tableName,fields);
+        Selection selection = new Selection(tableName,fieldStrings);
         fields = parseTableMetaData(tableName);
         Table table = new Table(tableName, fields);
 
-        String cond = conditions[0].trim();
+
         // return boolean if successful
-        boolean validatedSelectedData = validateSelection(selection, table, cond);
+        boolean validatedSelectedData = validateSelection(selection, table, conditionField);
+
 
         if(validatedSelectedData && !is_transaction){
-            int conditionIndex = IntStream.range(0, table.fields.size())
-                    .filter(i -> table.fields.get(i).name.equals(cond)).findFirst().orElse(-1);
-                   
-            Utils.print(printResults(table, conditionIndex,conditions[1].trim()));
+            Utils.print(printResults(table, fieldStrings, conditionField,conditionValue));
             Utils.print("\nResults printed successfully.");
         }
         else if(validatedSelectedData && is_transaction){
             // transaction part here
         }
-        else{
-            Utils.error("Something went wrong");
+        else {
+            Utils.error("Columns are not valid");
         }
     }
 
@@ -108,48 +110,99 @@ public class SelectQuery implements Query  {
 
         return fields;
     }
-    public static boolean validateSelection(Selection selection, Table table, String condition) {
+
+    // This function is just validating if all the columns are valid in query and conditions
+    public static boolean validateSelection(Selection selection, Table table, String conditionField) {
         if (!selection.tableName.equalsIgnoreCase(table.table_name)) {
             throw new IllegalArgumentException("Table names do not match");
         }
 
-        if(selection.fields.stream().anyMatch(field -> field.name.contains("*"))){
-            if(selection.fields.size()==1)
-             return table.fields.stream().anyMatch(field -> field.name.contains(condition));
-            else
-                selection.fields.remove(selection.fields.stream()
-                        .filter(field -> field.name.contains("*"))
-                        .findFirst());
-        }
-        return table.fields.stream().allMatch(field1 -> selection.fields.stream().anyMatch(field2 -> field2.name.equals(field1.name)))
-                 && table.fields.stream().anyMatch(field -> field.name.contains(condition));
-    }
-    static String printResults(Table table, int conditionIndex, String condition){
-        String results = "";
+        boolean conditionFieldExists = true;
 
-        // read from table
+        if (selection.fields.length == 1 && selection.fields[0].equals("*")) {
+            // Handle the case when all fields are selected
+            if(conditionField != null)
+                conditionFieldExists = table.fields.stream().anyMatch(field -> field.name.contains(conditionField));
+            return conditionFieldExists;
+        } else {
+            // Handle the case when specific fields are selected
+            boolean allFieldsExist = Arrays.stream(selection.fields)
+                    .allMatch(item -> table.fields.stream().anyMatch(obj -> obj.name.equals(item)));
+
+            if(conditionField != null)
+                conditionFieldExists = table.fields.stream().anyMatch(field -> field.name.contains(conditionField));
+
+            if (!conditionFieldExists) {
+                throw new IllegalArgumentException("Condition field does not exist in the table");
+            }
+
+            return allFieldsExist && conditionFieldExists;
+        }
+    }
+    static String printResults(Table table, String[] selectedColumns, String conditionColumn, String conditionValue) {
+        StringBuilder results = new StringBuilder();
+
+        // Read from table
         AuthFile file = new AuthFile();
-        File dataFile = new File(Paths.get(Constant.DB_DIR_PATH, table.table_name+Constant.DB_DATA_SUFFIX).toUri());
+        File dataFile = new File(Paths.get(Constant.DB_DIR_PATH, table.table_name + Constant.DB_DATA_SUFFIX).toUri());
         String[] fileData = file.fileReader(dataFile.getPath());
-        String[] filteredData = new String[0];
-        List<String> where = new ArrayList<String>();
-        where.add(table.fields.stream()
-                .map(field -> field.name)
-                .collect(Collectors.joining(", ")));
-        for (String data : fileData){
-            String[] values = data.split(",");
-            if(values[conditionIndex].equals(condition)){
-                where.add(data);
-                filteredData = where.toArray(filteredData);
+        List<String> filteredData = new ArrayList<>();
+
+        // Determine the column names based on selectedColumns
+        if (selectedColumns.length == 1 && selectedColumns[0].equals("*")) {
+            selectedColumns = table.fields.stream().map(field -> field.name).toArray(String[]::new);
+        }
+
+        filteredData.add(String.join(", ", selectedColumns));
+
+        if (conditionColumn != null && conditionValue != null) {
+            int conditionIndex = IntStream.range(0, table.fields.size())
+                    .filter(i -> table.fields.get(i).name.equals(conditionColumn))
+                    .findFirst()
+                    .orElse(-1);
+
+            if (conditionIndex == -1) {
+                // Condition column not found
+                return results.toString();
+            }
+
+            for (String data : fileData) {
+                String[] values = data.split(",");
+                if (values.length > conditionIndex && values[conditionIndex].equals(conditionValue)) {
+                    List<String> selectedValues = new ArrayList<>();
+                    for (String column : selectedColumns) {
+                        int columnIndex = IntStream.range(0, table.fields.size())
+                                .filter(i -> table.fields.get(i).name.equals(column))
+                                .findFirst()
+                                .orElse(-1);
+                        if (columnIndex != -1 && values.length > columnIndex) {
+                            selectedValues.add(values[columnIndex]);
+                        }
+                    }
+                    filteredData.add(String.join(", ", selectedValues));
+                }
+            }
+        } else {
+            // No condition provided, include all data
+            for (String data : fileData) {
+                String[] values = data.split(",");
+                List<String> selectedValues = new ArrayList<>();
+                for (String column : selectedColumns) {
+                    int columnIndex = IntStream.range(0, table.fields.size())
+                            .filter(i -> table.fields.get(i).name.equals(column))
+                            .findFirst()
+                            .orElse(-1);
+                    if (columnIndex != -1 && values.length > columnIndex) {
+                        selectedValues.add(values[columnIndex]);
+                    }
+                }
+                filteredData.add(String.join(", ", selectedValues));
             }
         }
-// check the column names
-        StringBuilder sb = new StringBuilder();
-        for (String str : filteredData) {
-            sb.append(str).append("\n");
-        }
-        sb.deleteCharAt(sb.length() - 1); // Remove the trailing space
-        results=sb.toString();
-        return results;
+
+        // Construct the results string
+        results.append(String.join("\n", filteredData));
+
+        return results.toString();
     }
 }

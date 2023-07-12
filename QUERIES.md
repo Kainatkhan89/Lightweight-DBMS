@@ -31,6 +31,10 @@ VALUES (3, 'Johnson', 'Mark', '456 Elm St', 'Chicago');
 ### Selecting data from the table
 
 ```sql
+SELECT * FROM Persons;
+```
+
+```sql
 SELECT * FROM Persons
 WHERE personID = 1;
 ```
@@ -45,9 +49,13 @@ WHERE firstName = 'Johnny';
 SELECT personID, firstName, lastName, address, city, customer_id
 FROM Persons;
 ```
+```sql
+SELECT personID, firstName, lastName
+FROM Persons;
+```
 
 ```sql
-SELECT personID, firstName, lastName, address, city, customer_id
+SELECT personID, firstName, lastName
 FROM Persons
 WHERE firstName = 'John';
 ```
@@ -56,8 +64,13 @@ WHERE firstName = 'John';
 
 ```sql
 UPDATE Persons
-SET address = '123 Main Street'
+SET address = '124 Main Street'
 WHERE personID = 1;
+```
+
+```sql
+UPDATE Persons
+SET address = '123 Willet Street';
 ```
 
 ```sql

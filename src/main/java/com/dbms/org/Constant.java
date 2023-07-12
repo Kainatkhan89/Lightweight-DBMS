@@ -13,5 +13,7 @@ public class Constant {
 
     public final static String DB_META_SUFFIX = "_meta.txt";
     public final static String DB_DATA_SUFFIX = "_data.txt";
+    public final static String DB_TEMP_META_SUFFIX = "_meta_temp.txt";
+    public final static String DB_TEMP_DATA_SUFFIX = "_data_temp.txt";
     public final static String SECRET_KEY = "mysecretkey12345";
 }

@@ -91,4 +91,21 @@ public class AuthFile implements FileIO {
         }
         return false;
     }
+
+    @Override
+    public boolean fileOverrideWriter(String path, String[] userInfo) {
+        try {
+            FileWriter fileWriter = new FileWriter(path, false); // Pass 'false' to disable appending and override the file
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            for (String data : userInfo) {
+                printWriter.println(data);
+            }
+            printWriter.close();
+            return true;
+        } catch (IOException e) {
+            Utils.error("An error occurred while writing to the file: " + e.getMessage());
+        }
+        return false;
+    }
+
 }

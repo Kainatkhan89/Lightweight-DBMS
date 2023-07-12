@@ -1,23 +1,19 @@
 package com.dbms.org.queries;
 
 import com.dbms.org.Constant;
-import com.dbms.org.Utils;
 import com.dbms.org.auth.AuthFile;
 import com.dbms.org.auth.User;
 
 import java.io.File;
-import java.io.BufferedReader;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.*;
-import java.io.FileReader;
-import java.io.IOException;
 
 import com.dbms.org.queries.Metadata.Field;
 import com.dbms.org.queries.Metadata.Table;
 
-public class InsertQuery implements Query  {
-    
+public class InsertQuery extends Query {
+
     static class Insertion {
         String tableName;
         Map<String, String> fieldValues;
@@ -30,12 +26,10 @@ public class InsertQuery implements Query  {
 
     public static void parse(String query, User current_user, boolean is_transaction) {
 
-        String tableName = null;
-        Map<String, String> fieldValues = new LinkedHashMap<>();
+        //String tableName = null;
         
         Pattern insertPattern = Pattern.compile("INSERT INTO (\\w+) \\((.*?)\\)\\s*VALUES \\((.*?)\\);", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = insertPattern.matcher(query);
-        List<Field> fields = new ArrayList<Field>();
         
         if (matcher.find()) {
             tableName = matcher.group(1);
@@ -57,7 +51,7 @@ public class InsertQuery implements Query  {
                 fieldValues.put(field.name, value);
             }
         }
-        
+
         Table table = new Table(tableName, fields);
         Insertion insertion = new Insertion(tableName, fieldValues);
 
@@ -71,35 +65,6 @@ public class InsertQuery implements Query  {
             String[] array = fieldValues.values().toArray(new String[0]);
             file.fileWriter(dataFile.getPath(),array);
         }
-    }
-
-    public static List<Field> parseTableMetaData(String tableName) {
-        List<Field> fields = new ArrayList<>();
-
-        String metaFilePath = Paths.get(Constant.DB_DIR_PATH, tableName + Constant.DB_META_SUFFIX).toString();
-    
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(metaFilePath));
-            String line = reader.readLine();
-            int lineNumber = 0;
-            while (line != null) {
-                if(lineNumber > 2) {
-                    String[] parts = line.split(",");
-                    String name = parts[0];
-                    String type = parts[1];
-                    String constraint = parts[2];
-                    fields.add(new Field(name, type, constraint));
-                }
-                lineNumber++;
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (IOException e) {
-            Utils.error("Error reading table metadata file: " + metaFilePath);
-            System.exit(0);
-        }
-
-        return fields;
     }
 
     public static boolean validateInsertion(Insertion insertion, Table table) {
